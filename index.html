@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plage Noire 2026 · Gruppe</title>
+<meta name="theme-color" content="#0b1114">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PN26">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#0b1114; --bg2:#10191d; --card:#131e22; --line:rgba(196,227,224,.13);
+  --mint:#c4e3e0; --mint2:#7fe0d2; --txt:#e8f1ef; --dim:#8aa09c; --heart:#ff4d6d; --coral:#f08a5d;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --cond:"Avenir Next Condensed","DIN Condensed","Roboto Condensed","Arial Narrow",sans-serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --st-chap:#7fe0d2; --st-salle:#b7a6ff; --st-rot:#ffcf7a; --st-cri:#f08a5d; --st-warm:#9aa7a5;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:16px}
+body{min-height:100vh;background:
+  radial-gradient(120% 60% at 50% -10%,rgba(127,224,210,.10),transparent 60%),
+  radial-gradient(80% 50% at 100% 110%,rgba(240,138,93,.07),transparent 60%),var(--bg);
+  background-attachment:fixed;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+header.top{position:sticky;top:0;z-index:20;padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;
+  background:linear-gradient(var(--bg) 70%,rgba(11,17,20,.0));}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.brand h1{margin:0;font-family:var(--serif);font-weight:600;font-size:22px;letter-spacing:.14em;text-transform:uppercase;color:var(--mint)}
+.brand small{font-family:var(--serif);font-style:italic;color:var(--dim);font-size:13px;letter-spacing:.05em}
+.seg{display:flex;gap:6px;margin-top:10px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:4px}
+.seg button{flex:1;padding:8px 4px;border-radius:9px;font-family:var(--cond);font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:14px;color:var(--dim)}
+.seg button.on{background:var(--mint);color:#0b1114}
+.chips{display:flex;gap:6px;margin-top:8px;overflow-x:auto;scrollbar-width:none}
+.chip{padding:6px 12px;border-radius:99px;border:1px solid var(--line);font-size:13px;color:var(--dim);white-space:nowrap}
+.chip.on{border-color:var(--mint2);color:var(--mint2);background:rgba(127,224,210,.08)}
+main{padding:4px 16px 24px}
+.view{display:none}.view.on{display:block}
+h2{font-family:var(--serif);font-weight:600;font-size:18px;letter-spacing:.08em;text-transform:uppercase;color:var(--mint);margin:22px 0 10px}
+h2:first-child{margin-top:8px}
+p.hint{color:var(--dim);font-size:14px;line-height:1.45;margin:6px 0 12px}
+
+/* act list */
+.slot{font-family:var(--cond);font-weight:700;color:var(--dim);font-size:13px;letter-spacing:.08em;margin:14px 0 6px;text-transform:uppercase}
+.act{display:flex;align-items:stretch;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 6px 10px 0;margin-bottom:8px;position:relative;overflow:hidden}
+.act::before{content:"";width:4px;border-radius:0 4px 4px 0;background:var(--stc,var(--mint))}
+.act.past{opacity:.42}
+.act.live{border-color:rgba(255,77,109,.6);box-shadow:0 0 0 1px rgba(255,77,109,.25),0 6px 24px rgba(255,77,109,.12)}
+.act .t{width:46px;flex:none;display:flex;flex-direction:column;font-family:var(--cond);font-weight:700;font-size:17px;line-height:1.1}
+.act .t span{color:var(--dim);font-size:13px;font-weight:600;margin-top:2px}
+.act .m{flex:1;min-width:0}
+.act .stage{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--stc);font-weight:600}
+.act .name{font-family:var(--cond);font-weight:700;font-size:19px;letter-spacing:.02em;text-transform:uppercase;line-height:1.12;margin-top:2px}
+.act .sub{font-size:13px;color:var(--dim);margin-top:2px}
+.act .warn{font-size:12px;color:#ffcf7a;margin-top:5px}
+.badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:5px;margin-left:6px;vertical-align:2px}
+.badge.live{background:var(--heart);color:#fff}
+.badge.les{background:var(--coral);color:#1b0d06}
+.who{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.dot{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;color:#0b1114;background:var(--c)}
+.heartbtn{width:52px;flex:none;display:grid;place-items:center;border-radius:12px}
+.heartbtn svg{width:30px;height:30px;fill:none;stroke:var(--dim);stroke-width:1.6;transition:transform .15s}
+.heartbtn.on svg{fill:var(--heart);stroke:var(--heart);filter:drop-shadow(0 0 8px rgba(255,77,109,.55))}
+.heartbtn:active svg{transform:scale(.85)}
+.heartbtn .n{font-size:11px;color:var(--dim);margin-top:-6px}
+
+.banner{background:linear-gradient(135deg,rgba(255,77,109,.16),rgba(240,138,93,.08));border:1px solid rgba(255,77,109,.35);border-radius:14px;padding:10px 12px;margin:8px 0 4px;font-size:14px;line-height:1.45}
+.banner b{font-family:var(--cond);letter-spacing:.03em;text-transform:uppercase;font-size:15px}
+.banner.info{background:rgba(127,224,210,.07);border-color:rgba(127,224,210,.3)}
+.banner .x{float:right;color:var(--dim);padding:0 0 4px 10px}
+.empty{color:var(--dim);text-align:center;padding:30px 10px;font-size:15px;line-height:1.5}
+
+/* heatmap */
+.hm-wrap{overflow-x:auto;margin:0 -16px;padding:0 16px 6px;-webkit-overflow-scrolling:touch}
+.hm{position:relative}
+.hm-hours{position:relative;height:22px;margin-left:var(--lab)}
+.hm-hours span{position:absolute;top:0;font-family:var(--cond);font-weight:700;font-size:12px;color:var(--dim);transform:translateX(-50%)}
+.hm-row{display:flex;height:84px;border-top:1px solid var(--line)}
+.hm-lab{width:var(--lab);flex:none;position:sticky;left:-16px;z-index:3;background:var(--bg);display:flex;align-items:center;
+  padding:0 8px 0 2px;font-family:var(--serif);font-size:13px;line-height:1.15;color:var(--txt)}
+.hm-lab i{display:block;width:3px;height:30px;border-radius:2px;background:var(--stc);margin-right:7px;flex:none}
+.hm-track{position:relative;flex:none}
+.hm-grid{position:absolute;inset:0;background-image:linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:var(--hw) 100%}
+.hm-box{position:absolute;top:6px;bottom:6px;border-radius:9px;padding:5px 6px;overflow:hidden;text-align:left;
+  border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;justify-content:space-between}
+.hm-box .bn{font-family:var(--cond);font-weight:700;font-size:13px;line-height:1.05;text-transform:uppercase;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hm-box .bt{font-size:10px;opacity:.75;font-weight:600}
+.hm-box .bd{display:flex;gap:2px}
+.hm-box .bd .dot{width:13px;height:13px;font-size:0}
+.hm-box.mine{outline:2px solid var(--heart);outline-offset:-2px}
+.hm-now{position:absolute;top:0;bottom:0;width:2px;background:var(--heart);z-index:2;box-shadow:0 0 10px var(--heart)}
+.legend{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim);margin:10px 0 2px;flex-wrap:wrap}
+.legend span.sw{width:22px;height:14px;border-radius:4px;display:inline-block}
+
+.plan{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:10px}
+.plan .ph{font-family:var(--cond);font-weight:700;color:var(--dim);font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.opt{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;padding:6px 0;border-top:1px dashed var(--line)}
+.opt:first-of-type{border-top:0}
+.opt .on{font-family:var(--cond);font-weight:700;text-transform:uppercase;font-size:16px}
+.opt .os{font-size:12px;color:var(--dim)}
+.opt .bar{grid-column:1/-1;height:5px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden}
+.opt .bar i{display:block;height:100%;border-radius:3px}
+.opt.win .on::before{content:"★ ";color:#ffc857}
+.opt .cnt{font-weight:800;font-size:14px}
+
+/* group + settings */
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+.row{display:flex;align-items:center;gap:10px}
+.row+.row{margin-top:10px}
+.member{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.member:first-child{border-top:0}
+.member .nm{font-weight:600}
+.member .meta{font-size:12px;color:var(--dim)}
+.member .grow{flex:1;min-width:0}
+.member .rm{color:var(--dim);font-size:20px;padding:4px 8px}
+.btn{display:block;width:100%;padding:13px 14px;border-radius:12px;background:var(--mint);color:#0b1114;font-weight:700;font-size:15px;text-align:center;margin-top:8px}
+.btn.ghost{background:transparent;color:var(--mint);border:1px solid rgba(196,227,224,.4)}
+.btn.small{display:inline-block;width:auto;padding:8px 12px;font-size:14px;margin:0}
+textarea,input[type=text],select{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px;font:inherit;font-size:15px}
+textarea{min-height:84px;font-family:ui-monospace,Menlo,monospace;font-size:12px}
+select{appearance:none;-webkit-appearance:none}
+label.lbl{display:block;font-size:13px;color:var(--dim);margin:12px 0 6px}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tog{width:52px;height:31px;border-radius:99px;background:#2b3a3f;position:relative;flex:none;transition:background .2s}
+.tog::after{content:"";position:absolute;left:3px;top:3px;width:25px;height:25px;border-radius:50%;background:#fff;transition:left .2s}
+.tog.on{background:#34c08f}.tog.on::after{left:24px}
+.status{font-size:13px;color:var(--dim);margin-top:6px}
+.status b{color:var(--txt)}
+
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(11,17,20,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+nav.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;color:var(--dim);font-size:11px;font-weight:600;letter-spacing:.02em}
+nav.tabs svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs button.on{color:var(--mint2)}
+
+.modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center}
+.modal.on{display:flex}
+.sheet{width:100%;max-width:520px;background:#121c20;border:1px solid var(--line);border-radius:20px 20px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
+.sheet h3{font-family:var(--serif);color:var(--mint);letter-spacing:.06em;margin:0 0 6px;font-size:20px}
+.toast{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 10px);z-index:60;background:#1d2a2f;border:1px solid var(--mint2);border-radius:14px;padding:12px 14px;
+  font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.5);transform:translateY(-140%);transition:transform .3s}
+.toast.on{transform:none}
+@media(min-width:700px){main,header.top{max-width:760px;margin:0 auto}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><h1>Plage Noire</h1><small id="hello">Festival 2026</small></div>
+  <div class="seg" id="days"></div>
+</header>
+
+<main>
+  <section class="view on" id="v-prog">
+    <div id="install"></div>
+    <div class="chips" id="filters"></div>
+    <div id="nownext"></div>
+    <div id="list"></div>
+  </section>
+
+  <section class="view" id="v-heat">
+    <h2>Heatmap der Gruppe</h2>
+    <p class="hint">Je heißer die Farbe, desto mehr von euch wollen hin. Rot umrandet = dein Herz. Tippen für Details.</p>
+    <div class="hm-wrap"><div class="hm" id="hm"></div></div>
+    <div class="legend" id="legend"></div>
+    <h2>Gruppenplan</h2>
+    <p class="hint">Überschneidende Auftritte sind zusammengefasst. ★ = die meisten Herzen.</p>
+    <div id="plan"></div>
+  </section>
+
+  <section class="view" id="v-group">
+    <h2>Du</h2>
+    <div class="card">
+      <div class="row"><div class="dot" id="meDot" style="--c:var(--mint2)"></div>
+        <div style="flex:1"><div style="font-weight:700" id="meName"></div><div class="status" id="meCount"></div></div>
+        <button class="btn small ghost" id="rename">Ändern</button></div>
+    </div>
+    <h2>Deine Leute</h2>
+    <div class="card" id="members"></div>
+    <h2>Synchronisieren</h2>
+    <p class="hint">Kein Server: Ihr tauscht kurze Codes, z.&nbsp;B. per WhatsApp. Jeder teilt nach dem Herzen-Vergeben seinen Code, die anderen fügen ihn ein. Ändert jemand etwas, einfach neu teilen – ältere Stände werden automatisch überschrieben.</p>
+    <button class="btn" id="shareMe">Meine Herzen teilen</button>
+    <button class="btn ghost" id="shareAll">Stand der ganzen Gruppe teilen</button>
+    <label class="lbl">Codes einfügen (auch mehrere oder die ganze Nachricht)</label>
+    <textarea id="paste" placeholder="PN26~Name~…"></textarea>
+    <div class="row" style="margin-top:8px">
+      <button class="btn small ghost" id="fromClip">Aus Zwischenablage</button>
+      <button class="btn small" id="doImport" style="flex:1">Importieren</button>
+    </div>
+  </section>
+
+  <section class="view" id="v-alarm">
+    <h2>Erinnerungen</h2>
+    <div class="card">
+      <div class="switch"><div><b>Benachrichtigungen</b><div class="status" id="permState"></div></div><button class="tog" id="notifTog" aria-label="Benachrichtigungen"></button></div>
+      <label class="lbl">Wie viele Minuten vorher?</label>
+      <select id="lead"><option>5</option><option>10</option><option>15</option><option>20</option><option>30</option></select>
+      <label class="lbl">Für welche Auftritte?</label>
+      <select id="mode">
+        <option value="mine">Meine Herzen</option>
+        <option value="group2">Gruppen-Favoriten (ab 2 Herzen) + meine</option>
+        <option value="any">Alles mit mindestens einem Herz</option>
+      </select>
+      <button class="btn ghost" id="testN">Test-Benachrichtigung</button>
+    </div>
+    <div class="banner info" id="iosNote"></div>
+    <h2>In den Kalender</h2>
+    <p class="hint">Am zuverlässigsten: Termine mit Alarm in den Handy-Kalender übernehmen. Der Kalender klingelt auch bei gesperrtem Display und ohne Netz.</p>
+    <button class="btn" id="icsMine">Meine Herzen → Kalender</button>
+    <button class="btn ghost" id="icsGroup">Gruppen-Favoriten (ab 2 ♥) → Kalender</button>
+    <p class="hint" style="margin-top:14px">Hinweis: Endzeiten sind aus den Balkenlängen im offiziellen Timetable abgeleitet. Kurzfristige Änderungen vor Ort beachten.</p>
+  </section>
+</main>
+
+<nav class="tabs" id="tabs">
+  <button data-v="prog" class="on"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Programm</button>
+  <button data-v="heat"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Heatmap</button>
+  <button data-v="group"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.6-3.4 3-5.4 6-5.4s5.4 2 6 5.4"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.2c2.4.2 4 1.9 4.5 4.8"/></svg>Gruppe</button>
+  <button data-v="alarm"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/></svg>Erinnern</button>
+</nav>
+
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============ DATEN (Reihenfolge NICHT ändern – Index steckt im Sync-Code; nur anhängen) ============ */
+const STAGES = {
+  warm:{n:"Warm-Up", c:"var(--st-warm)"},
+  chap:{n:"Le Chapiteau", c:"var(--st-chap)"},
+  salle:{n:"Salle de Fête", c:"var(--st-salle)"},
+  rot:{n:"La Rotonde", c:"var(--st-rot)"},
+  cri:{n:"Cri de la Mouette", c:"var(--st-cri)"}
+};
+const STAGE_ORDER = ["chap","salle","rot","cri"];
+const T = (d,hm) => new Date(`2026-11-${d}T${hm}:00+01:00`);
+const RAW = [
+ // id, Tag, Bühne, Name, Start, Ende, Typ
+ [0,"do","warm","Warm-Up Party: DJ Worlock",T(19,"20:00"),null,"party"],
+ [1,"fr","chap","Zeraphine",T(20,"17:15"),T(20,"18:45")],
+ [2,"fr","chap","Heldmaschine",T(20,"19:15"),T(20,"20:45")],
+ [3,"fr","chap","Project Pitchfork",T(20,"21:15"),T(20,"22:45")],
+ [4,"fr","chap","Eisbrecher",T(20,"23:30"),T(21,"01:00")],
+ [5,"fr","salle","Oberer Totpunkt",T(20,"17:00"),T(20,"18:00")],
+ [6,"fr","salle","Noisuf-X",T(20,"18:45"),T(20,"19:45")],
+ [7,"fr","salle","In Strict Confidence",T(20,"20:45"),T(20,"22:00")],
+ [8,"fr","salle","Rotersand",T(20,"22:45"),T(21,"00:00")],
+ [9,"fr","rot","Ghostbells",T(20,"18:45"),T(20,"19:45")],
+ [10,"fr","rot","Lakeside X",T(20,"20:45"),T(20,"21:45")],
+ [11,"fr","rot","A Projection",T(20,"22:45"),T(20,"23:45")],
+ [12,"fr","cri","DJ MSTH + Timur Karakus",T(21,"00:00"),T(21,"04:00"),"dj"],
+ [13,"sa","chap","The Beauty of Gemina",T(21,"14:15"),T(21,"15:15")],
+ [14,"sa","chap","Stahlmann",T(21,"15:45"),T(21,"16:45")],
+ [15,"sa","chap","Solar Fake",T(21,"17:15"),T(21,"18:15")],
+ [16,"sa","chap","Covenant",T(21,"18:45"),T(21,"19:45")],
+ [17,"sa","chap","Subway to Sally",T(21,"20:15"),T(21,"21:45")],
+ [18,"sa","chap","Lacrimosa",T(21,"22:30"),T(22,"00:00")],
+ [19,"sa","salle","Schöngeist",T(21,"15:15"),T(21,"16:15")],
+ [20,"sa","salle","[X]-RX",T(21,"16:45"),T(21,"17:45")],
+ [21,"sa","salle","The Cassandra Complex",T(21,"18:15"),T(21,"19:15")],
+ [22,"sa","salle","S.P.O.C.K",T(21,"19:45"),T(21,"20:45")],
+ [23,"sa","salle","Die Krupps",T(21,"21:30"),T(21,"22:30")],
+ [24,"sa","rot","Carrellee",T(21,"16:45"),T(21,"17:30")],
+ [25,"sa","rot","Antibody",T(21,"18:15"),T(21,"19:15")],
+ [26,"sa","rot","Bragolin",T(21,"19:45"),T(21,"20:45")],
+ [27,"sa","rot","Corlyx",T(21,"21:30"),T(21,"22:30")],
+ [28,"sa","cri","Anja Kretschmer: Vom Scheintod und anderen Merkwürdigkeiten",T(21,"12:00"),T(21,"13:15"),"lesung"],
+ [29,"sa","cri","Markus Heitz",T(21,"13:45"),T(21,"15:00"),"lesung"],
+ [30,"sa","cri","Christian von Aster",T(21,"15:30"),T(21,"17:00"),"lesung"],
+ [31,"sa","cri","Marc Urban + DJane Thenia AF",T(21,"23:00"),T(22,"03:00"),"dj"],
+];
+const ACTS = RAW.map(([id,day,stage,name,start,end,type])=>({id,day,stage,name,start,end:end||new Date(+start+4*3600e3),openEnd:!end,type:type||"band"}));
+const BY_ID = Object.fromEntries(ACTS.map(a=>[a.id,a]));
+const DAYS = [{k:"do",l:"Do 19."},{k:"fr",l:"Fr 20."},{k:"sa",l:"Sa 21."}];
+const PALETTE = ["#7fe0d2","#ff8a5c","#c792ea","#ffd166","#6cb8ff","#ff6b9a","#9be564","#f4a6ff"];
+const HEAT = ["#1a2529","#4a2a6a","#a3305f","#e55a3c","#ffc857"];
+
+/* ============ ZUSTAND ============ */
+const LS = "pn26-state-v1";
+const params = new URLSearchParams(location.search);
+const NOW = () => params.get("now") ? new Date(params.get("now")) : new Date();
+let S = Object.assign({me:"",hearts:[],hTs:0,members:{},lead:15,mode:"mine",notify:false,notified:{},day:null,filter:"all",view:"prog",hideInstall:false}, safeLoad());
+function safeLoad(){ try{ return JSON.parse(localStorage.getItem(LS))||{} }catch(e){ return {} } }
+function save(){ try{ localStorage.setItem(LS, JSON.stringify(S)) }catch(e){} }
+const mine = () => new Set(S.hearts);
+
+/* ============ HELFER ============ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const hm = d => d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:"Europe/Berlin"});
+const overlap = (a,b) => a.start < b.end && b.start < a.end;
+const HEART = '<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+function people(){ // [{name,color,me,hearts:Set}]
+  const names = Object.keys(S.members).sort((a,b)=>a.localeCompare(b,"de"));
+  const list = [{name:S.me||"Ich",me:true,hearts:mine()}].concat(names.map(n=>({name:n,me:false,hearts:new Set(S.members[n].h),ts:S.members[n].ts})));
+  list.forEach((p,i)=>p.color=PALETTE[i%PALETTE.length]);
+  return list;
+}
+function whoLikes(id, ps=people()){ return ps.filter(p=>p.hearts.has(id)); }
+function initials(n){ const p=n.trim().split(/\s+/); return ((p[0]||"?")[0]+(p[1]?p[1][0]:"")).toUpperCase(); }
+function dots(list, big=true){ return list.map(p=>`<span class="dot" style="--c:${p.color}" title="${esc(p.name)}">${big?esc(initials(p.name)):""}</span>`).join(""); }
+function heatColor(c,n){ if(!c) return HEAT[0]; const r=c/Math.max(n,1); return r>=1?HEAT[4]:r>=.7?HEAT[3]:r>=.45?HEAT[2]:HEAT[1]; }
+function toast(msg,ms=4000){ const t=$("#toast"); t.innerHTML=msg; t.classList.add("on"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("on"),ms); }
+function defaultDay(){ const n=NOW(); if(n<T(20,"06:00")) return n>=T(19,"12:00")?"do":"fr"; return n<T(21,"06:00")?"fr":"sa"; }
+const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+
+/* ============ SYNC-CODES (ohne Server) ============ */
+const b64u = bytes => btoa(String.fromCharCode(...bytes)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+function unb64u(s){ s=s.replace(/-/g,"+").replace(/_/g,"/"); while(s.length%4) s+="="; return Uint8Array.from(atob(s),c=>c.charCodeAt(0)); }
+function encodeIds(ids){ const b=new Uint8Array(Math.ceil(ACTS.length/8)); ids.forEach(i=>b[i>>3]|=1<<(i&7)); return b64u(b); }
+function decodeIds(s){ const out=[]; try{ unb64u(s).forEach((v,bi)=>{ for(let k=0;k<8;k++) if(v&(1<<k)){ const id=bi*8+k; if(BY_ID[id]) out.push(id);} }); }catch(e){} return out; }
+const cleanName = n => String(n||"").replace(/[~\s]+/g," ").trim().slice(0,20);
+const makeCode = (name,ids,ts) => `PN26~${encodeURIComponent(cleanName(name))}~${encodeIds(ids)}~${Math.floor(ts||0).toString(36)}`;
+function parseCodes(text){
+  const best={}, re=/PN26~([A-Za-z0-9%._!*'()-]+)~([A-Za-z0-9_-]*)~([0-9a-z]+)/g; let m;
+  while((m=re.exec(String(text)))){ let name; try{ name=cleanName(decodeURIComponent(m[1])) }catch(e){ continue }
+    const c={name, ids:decodeIds(m[2]), ts:parseInt(m[3],36)||0};
+    if(name && (!best[name] || c.ts>best[name].ts)) best[name]=c; }
+  return Object.values(best);
+}
+function importCodes(text){
+  const codes=parseCodes(text); if(!codes.length) return {n:0,msg:"Kein gültiger Code gefunden."};
+  const res=[];
+  codes.forEach(c=>{
+    if(c.name===S.me){ res.push(`${esc(c.name)}: das bist du – übersprungen`); return; }
+    const cur=S.members[c.name];
+    if(!cur){ S.members[c.name]={h:c.ids,ts:c.ts}; res.push(`<b>${esc(c.name)}</b> neu (${c.ids.length} ♥)`); }
+    else if(c.ts>cur.ts){ S.members[c.name]={h:c.ids,ts:c.ts}; res.push(`<b>${esc(c.name)}</b> aktualisiert (${c.ids.length} ♥)`); }
+    else res.push(`${esc(c.name)}: schon aktuell`);
+  });
+  save(); renderAll(); return {n:codes.length,msg:res.join("<br>")};
+}
+function shareText(all){
+  const ps=people(); const codes=[makeCode(S.me,S.hearts,S.hTs)];
+  if(all) Object.keys(S.members).forEach(n=>codes.push(makeCode(n,S.members[n].h,S.members[n].ts)));
+  const url=location.origin+location.pathname+"#"+codes.join(",");
+  const head = all ? `🖤 Plage Noire 2026 – Gruppenstand (${ps.length} Leute)` : `🖤 Plage Noire 2026 – Herzen von ${S.me} (${S.hearts.length} ♥)`;
+  return `${head}\n\nIn der App: Gruppe → Codes einfügen\n${codes.join("\n")}\n\nOder Link öffnen:\n${url}`;
+}
+async function doShare(all){
+  const text=shareText(all);
+  if(navigator.share){ try{ await navigator.share({text}); return; }catch(e){ if(e.name==="AbortError") return; } }
+  try{ await navigator.clipboard.writeText(text); toast("📋 In die Zwischenablage kopiert – jetzt in den Gruppenchat einfügen."); }
+  catch(e){ openSheet(`<h3>Zum Kopieren</h3><textarea style="min-height:200px" readonly>${esc(text)}</textarea><button class="btn" onclick="closeSheet()">Fertig</button>`); }
+}
+
+/* ============ RENDER ============ */
+function renderDays(){
+  $("#days").innerHTML = DAYS.map(d=>`<button data-d="${d.k}" class="${S.day===d.k?"on":""}">${d.l}</button>`).join("");
+}
+function renderFilters(){
+  const f=[["all","Alle"],["mine","Meine ♥"],["group","Mit Gruppen-♥"]];
+  $("#filters").innerHTML = f.map(([k,l])=>`<button class="chip ${S.filter===k?"on":""}" data-f="${k}">${l}</button>`).join("");
+}
+function renderInstall(){
+  const el=$("#install");
+  if(S.hideInstall || isStandalone()){ el.innerHTML=""; return; }
+  el.innerHTML = `<div class="banner info"><button class="x" data-act="hideInstall">✕</button>${isIOS()
+    ? "📲 <b>Als App installieren:</b> unten in Safari auf <b>Teilen</b> → <b>Zum Home-Bildschirm</b>. Erst dann gehen Benachrichtigungen und die App läuft offline."
+    : "📲 <b>Als App installieren:</b> im Browser-Menü „App installieren“ bzw. „Zum Startbildschirm hinzufügen“."}</div>`;
+}
+function actCard(a, ps, my, now){
+  const who=whoLikes(a.id,ps), on=my.has(a.id);
+  const st=STAGES[a.stage];
+  const live = now>=a.start && now<a.end, past = now>=a.end;
+  const clash = on ? ACTS.filter(b=>b.id!==a.id && my.has(b.id) && overlap(a,b)) : [];
+  return `<div class="act ${live?"live":""} ${past?"past":""}" style="--stc:${st.c}">
+    <div class="t"><b style="padding-left:8px">${hm(a.start)}</b><span style="padding-left:8px">${a.openEnd?"open end":hm(a.end)}</span></div>
+    <div class="m">
+      <div class="stage">${esc(st.n)}${live?'<span class="badge live">läuft</span>':""}${a.type==="lesung"?'<span class="badge les">Lesung</span>':""}</div>
+      <div class="name">${esc(a.name)}</div>
+      ${who.length?`<div class="who">${dots(who)}</div>`:""}
+      ${clash.length?`<div class="warn">⚡ überschneidet sich mit ${clash.map(b=>esc(b.name)).join(", ")}</div>`:""}
+    </div>
+    <button class="heartbtn ${on?"on":""}" data-h="${a.id}" aria-pressed="${on}" aria-label="${esc(a.name)} herzen"><div>${HEART}<div class="n">${who.length?who.length+"/"+ps.length:""}</div></div></button>
+  </div>`;
+}
+function renderList(){
+  const ps=people(), my=mine(), now=NOW();
+  let acts=ACTS.filter(a=>a.day===S.day);
+  if(S.filter==="mine") acts=acts.filter(a=>my.has(a.id));
+  if(S.filter==="group") acts=acts.filter(a=>whoLikes(a.id,ps).length);
+  acts.sort((a,b)=>a.start-b.start || STAGE_ORDER.indexOf(a.stage)-STAGE_ORDER.indexOf(b.stage));
+  if(!acts.length){ $("#list").innerHTML=`<div class="empty">${S.filter==="mine"?"Noch keine Herzen für diesen Tag.<br>Tippe bei „Alle“ auf ♡, um Bands auszuwählen.":"Hier ist noch nichts gevotet."}</div>`; return; }
+  let html="", last="";
+  acts.forEach(a=>{ const h=a.start.toLocaleTimeString("de-DE",{hour:"2-digit",timeZone:"Europe/Berlin"}).replace(/\s*Uhr$/,"")+" Uhr"; if(h!==last){ html+=`<div class="slot">${h}</div>`; last=h; } html+=actCard(a,ps,my,now); });
+  $("#list").innerHTML=html;
+}
+function renderNowNext(){
+  const ps=people(), now=NOW(), soon=new Date(+now+75*60e3);
+  const rel=ACTS.filter(a=>whoLikes(a.id,ps).length);
+  const running=rel.filter(a=>now>=a.start&&now<a.end);
+  const next=rel.filter(a=>a.start>now&&a.start<=soon).sort((a,b)=>a.start-b.start);
+  if(!running.length && !next.length){ $("#nownext").innerHTML=""; return; }
+  const line=(a,pre)=>`${pre} <b>${esc(a.name)}</b> · ${esc(STAGES[a.stage].n)} ${pre==="Jetzt"?"bis "+hm(a.end):"um "+hm(a.start)} · ♥${whoLikes(a.id,ps).length}`;
+  $("#nownext").innerHTML=`<div class="banner">${running.map(a=>line(a,"Jetzt")).concat(next.map(a=>line(a,"Gleich"))).join("<br>")}</div>`;
+}
+function dayRange(day){
+  const acts=ACTS.filter(a=>a.day===day);
+  const s=new Date(Math.min(...acts.map(a=>+a.start))); const e=new Date(Math.max(...acts.map(a=>+a.end)));
+  s.setMinutes(0,0,0); if(e.getMinutes()||e.getSeconds()) { e.setMinutes(0,0,0); e.setTime(+e+3600e3); }
+  return {s,e};
+}
+function renderHeat(){
+  const ps=people(), n=ps.length, my=mine(), now=NOW();
+  const acts=ACTS.filter(a=>a.day===S.day);
+  const {s,e}=dayRange(S.day); const HW=88, LAB=96;
+  const hours=Math.round((e-s)/3600e3), W=hours*HW;
+  const x=d=>(d-s)/3600e3*HW;
+  const stages = S.day==="do" ? ["warm"] : STAGE_ORDER;
+  let h=`<div style="--lab:${LAB}px;--hw:${HW}px;width:${LAB+W+8}px">`;
+  h+=`<div class="hm-hours">`; for(let i=0;i<=hours;i++){ const t=new Date(+s+i*3600e3); h+=`<span style="left:${i*HW}px">${t.toLocaleTimeString("de-DE",{hour:"2-digit",timeZone:"Europe/Berlin"})}</span>`; } h+=`</div>`;
+  stages.forEach(k=>{
+    h+=`<div class="hm-row"><div class="hm-lab" style="--stc:${STAGES[k].c}"><i></i>${esc(STAGES[k].n)}</div><div class="hm-track" style="width:${W}px"><div class="hm-grid"></div>`;
+    acts.filter(a=>a.stage===k).forEach(a=>{
+      const who=whoLikes(a.id,ps), c=heatColor(who.length,n), dark=who.length/Math.max(n,1)>=.7;
+      h+=`<button class="hm-box ${my.has(a.id)?"mine":""}" data-d="${a.id}" style="left:${x(a.start)+1}px;width:${x(a.end)-x(a.start)-2}px;background:${c};color:${dark?"#1a0d05":"var(--txt)"}">
+        <div class="bn">${esc(a.name)}</div><div class="bt">${hm(a.start)}${who.length?" · ♥"+who.length:""}</div><div class="bd">${dots(who,false)}</div></button>`;
+    });
+    if(now>=s&&now<e) h+=`<div class="hm-now" style="left:${x(now)}px"></div>`;
+    h+=`</div></div>`;
+  });
+  h+=`</div>`;
+  $("#hm").innerHTML=h;
+  const lg=[0,1,2,3,4].filter(i=>i<=Math.max(n,1));
+  $("#legend").innerHTML = "♥ " + lg.map(i=>`<span class="sw" style="background:${heatColor(i,Math.max(n,1))}"></span>${i}`).join(" ") + ` <span style="margin-left:auto">${n} ${n===1?"Person":"Personen"}</span>`;
+  renderPlan(ps);
+}
+function renderPlan(ps){
+  const n=ps.length;
+  const acts=ACTS.filter(a=>a.day===S.day && whoLikes(a.id,ps).length).sort((a,b)=>a.start-b.start);
+  if(!acts.length){ $("#plan").innerHTML=`<div class="empty">Noch keine Herzen für diesen Tag.</div>`; return; }
+  const clusters=[]; let cur=null, curEnd=0;
+  acts.forEach(a=>{ if(cur && a.start<curEnd){ cur.push(a); curEnd=Math.max(curEnd,+a.end); } else { cur=[a]; clusters.push(cur); curEnd=+a.end; } });
+  $("#plan").innerHTML = clusters.map(cl=>{
+    const s=new Date(Math.min(...cl.map(a=>+a.start))), e=new Date(Math.max(...cl.map(a=>+a.end)));
+    const ranked=cl.map(a=>({a,who:whoLikes(a.id,ps)})).sort((p,q)=>q.who.length-p.who.length||p.a.start-q.a.start);
+    const top=ranked[0].who.length, ties=ranked.filter(r=>r.who.length===top).length;
+    const head = cl.length===1 ? (ranked[0].who.length===n&&n>1?"Alle zusammen 🖤":"Keine Überschneidung") : (ties>1?"Unentschieden – ausdiskutieren!":"Überschneidung");
+    return `<div class="plan"><div class="ph">${hm(s)} – ${hm(e)} · ${head}</div>${ranked.map(r=>`
+      <div class="opt ${cl.length>1&&r.who.length===top&&ties===1?"win":""}">
+        <div><div class="on">${esc(r.a.name)}</div><div class="os">${esc(STAGES[r.a.stage].n)} · ${hm(r.a.start)}–${hm(r.a.end)} · ${r.who.map(p=>esc(p.name)).join(", ")}</div></div>
+        <div class="cnt">${r.who.length}/${n}</div>
+        <div class="bar"><i style="width:${r.who.length/n*100}%;background:${heatColor(r.who.length,n)}"></i></div>
+      </div>`).join("")}</div>`;
+  }).join("");
+}
+function renderGroup(){
+  const ps=people();
+  $("#meName").textContent=S.me||"–"; $("#meDot").textContent=initials(S.me||"?");
+  $("#meCount").textContent=`${S.hearts.length} Herzen vergeben`;
+  const others=ps.filter(p=>!p.me);
+  $("#members").innerHTML = others.length ? others.map(p=>`<div class="member"><span class="dot" style="--c:${p.color}">${esc(initials(p.name))}</span>
+      <div class="grow"><div class="nm">${esc(p.name)}</div><div class="meta">${p.hearts.size} ♥ · Stand ${p.ts?new Date(p.ts).toLocaleString("de-DE",{weekday:"short",hour:"2-digit",minute:"2-digit"}):"–"}</div></div>
+      <button class="rm" data-rm="${esc(p.name)}" aria-label="entfernen">✕</button></div>`).join("")
+    : `<div class="hint" style="margin:0">Noch niemand importiert. Schick deinen Code in den Gruppenchat und füge die Codes der anderen unten ein.</div>`;
+  $("#hello").textContent = S.me ? `Hallo ${S.me} 🖤` : "Festival 2026";
+}
+function renderAlarm(){
+  const perm = ("Notification" in window) ? Notification.permission : "nicht verfügbar";
+  $("#notifTog").classList.toggle("on", S.notify && perm==="granted");
+  const pm={granted:"erlaubt",denied:"blockiert – in den Einstellungen freigeben",default:"noch nicht gefragt"}[perm]||"in diesem Browser nicht verfügbar";
+  $("#permState").innerHTML=`Status: <b>${pm}</b>`;
+  $("#lead").value=String(S.lead); $("#mode").value=S.mode;
+  $("#iosNote").innerHTML = isIOS()
+    ? (isStandalone() ? "ℹ️ iPhone: Benachrichtigungen kommen, solange die App geöffnet ist oder im Hintergrund noch läuft. Für sicheres Klingeln bei gesperrtem Handy zusätzlich den Kalender-Export nutzen."
+                      : "ℹ️ iPhone: Benachrichtigungen funktionieren nur, wenn die App über <b>Teilen → Zum Home-Bildschirm</b> installiert ist (iOS 16.4+).")
+    : "ℹ️ Benachrichtigungen kommen, solange die App bzw. der Tab geöffnet ist. Für Erinnerungen bei gesperrtem Handy zusätzlich den Kalender-Export nutzen.";
+}
+function renderAll(){ renderDays(); renderFilters(); renderInstall(); renderNowNext(); renderList(); renderHeat(); renderGroup(); renderAlarm(); }
+
+/* ============ SHEETS / DIALOGE ============ */
+function openSheet(html){ $("#sheet").innerHTML=html; $("#modal").classList.add("on"); }
+function closeSheet(){ $("#modal").classList.remove("on"); }
+$("#modal").addEventListener("click",e=>{ if(e.target.id==="modal" && S.me) closeSheet(); });
+function askName(first){
+  openSheet(`<h3>${first?"Willkommen am Plage Noire 🖤":"Name ändern"}</h3>
+    <p class="hint">${first?"Wie sollen dich die anderen in der Gruppe sehen? Kurz und eindeutig – z.&nbsp;B. dein Vorname.":"Achtung: Bei den anderen erscheinst du nach dem nächsten Teilen unter dem neuen Namen (den alten können sie entfernen)."}</p>
+    <input type="text" id="nameIn" maxlength="20" placeholder="Dein Name" value="${esc(S.me)}" autocomplete="given-name">
+    <button class="btn" id="nameOk">Los geht's</button>`);
+  setTimeout(()=>$("#nameIn").focus(),50);
+  const ok=()=>{ const v=cleanName($("#nameIn").value); if(!v) return; S.me=v; if(S.members[v]) delete S.members[v]; save(); closeSheet(); renderAll(); handleHash(); };
+  $("#nameOk").onclick=ok; $("#nameIn").onkeydown=e=>{ if(e.key==="Enter") ok(); };
+}
+function showDetail(id){
+  const a=BY_ID[id], ps=people(), who=whoLikes(id,ps), on=mine().has(id);
+  openSheet(`<div class="stage" style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:${STAGES[a.stage].c}">${esc(STAGES[a.stage].n)}</div>
+    <h3 style="font-family:var(--cond);text-transform:uppercase;font-size:26px;letter-spacing:.02em;color:var(--txt)">${esc(a.name)}</h3>
+    <div class="hint">${DAYS.find(d=>d.k===a.day).l} · ${hm(a.start)} – ${a.openEnd?"open end":hm(a.end)}</div>
+    <div class="who" style="margin:8px 0">${who.length?who.map(p=>`<span class="dot" style="--c:${p.color}">${esc(initials(p.name))}</span><span style="font-size:14px;margin-right:8px">${esc(p.name)}</span>`).join(""):'<span class="hint">Noch keine Herzen.</span>'}</div>
+    <button class="btn ${on?"ghost":""}" id="dH">${on?"♥ Herz entfernen":"♥ Will ich sehen"}</button>
+    <button class="btn ghost" onclick="closeSheet()">Schließen</button>`);
+  $("#dH").onclick=()=>{ toggleHeart(id); closeSheet(); };
+}
+function handleHash(){
+  if(!location.hash || location.hash.length<10 || !S.me) return;
+  const codes=parseCodes(location.hash.slice(1));
+  history.replaceState(null,"",location.pathname+location.search);
+  if(!codes.length) return;
+  const txt=codes.map(c=>makeCode(c.name,c.ids,c.ts)).join("\n");
+  openSheet(`<h3>${codes.length} Code${codes.length>1?"s":""} gefunden</h3>
+    <p class="hint">Von: ${codes.map(c=>esc(c.name)).join(", ")}</p>
+    ${isIOS()&&!isStandalone()?'<p class="hint">Nutzt du die App vom Home-Bildschirm? Dann hier <b>kopieren</b> und in der App unter Gruppe → Codes einfügen. Safari und die installierte App haben getrennte Speicher.</p>':""}
+    <button class="btn" id="hImp">In ${isStandalone()?"die App":"diesen Browser"} importieren</button>
+    <button class="btn ghost" id="hCopy">Codes kopieren</button>`);
+  $("#hImp").onclick=()=>{ const r=importCodes(txt); closeSheet(); toast(r.msg,6000); };
+  $("#hCopy").onclick=async()=>{ try{ await navigator.clipboard.writeText(txt); toast("📋 Kopiert"); }catch(e){} closeSheet(); };
+}
+
+/* ============ AKTIONEN ============ */
+function toggleHeart(id){
+  const s=mine(); s.has(id)?s.delete(id):s.add(id);
+  S.hearts=[...s].sort((a,b)=>a-b); S.hTs=Date.now(); save(); renderAll();
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-h],[data-d],[data-f],[data-v],[data-rm],[data-act]"); if(!t) return;
+  if(t.dataset.h!==undefined){ toggleHeart(+t.dataset.h); if(navigator.vibrate) navigator.vibrate(10); }
+  else if(t.dataset.d!==undefined){ if(t.classList.contains("hm-box")) showDetail(+t.dataset.d); else { S.day=t.dataset.d; save(); renderAll(); } }
+  else if(t.dataset.f){ S.filter=t.dataset.f; save(); renderFilters(); renderList(); }
+  else if(t.dataset.v){ showView(t.dataset.v); }
+  else if(t.dataset.rm){ const n=t.dataset.rm;
+    openSheet(`<h3>${esc(n)} entfernen?</h3><p class="hint">Die Herzen von ${esc(n)} verschwinden aus Heatmap und Gruppenplan. Mit einem neuen Code kommt ${esc(n)} jederzeit zurück.</p><button class="btn" id="rmOk">Entfernen</button><button class="btn ghost" onclick="closeSheet()">Abbrechen</button>`);
+    $("#rmOk").onclick=()=>{ delete S.members[n]; save(); closeSheet(); renderAll(); }; }
+  else if(t.dataset.act==="hideInstall"){ S.hideInstall=true; save(); renderInstall(); }
+});
+function showView(v){
+  S.view=v; save();
+  document.querySelectorAll(".view").forEach(el=>el.classList.toggle("on",el.id==="v-"+v));
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+  $("#days").style.display = (v==="prog"||v==="heat") ? "" : "none";
+  scrollTo(0,0);
+}
+$("#rename").onclick=()=>askName(false);
+$("#shareMe").onclick=()=>doShare(false);
+$("#shareAll").onclick=()=>doShare(true);
+$("#doImport").onclick=()=>{ const r=importCodes($("#paste").value); toast(r.msg,6000); if(r.n) $("#paste").value=""; };
+$("#fromClip").onclick=async()=>{ try{ const t=await navigator.clipboard.readText(); $("#paste").value=t; const r=importCodes(t); toast(r.msg,6000); if(r.n) $("#paste").value=""; }catch(e){ toast("Zwischenablage nicht lesbar – bitte manuell ins Feld einfügen."); } };
+
+/* ============ BENACHRICHTIGUNGEN ============ */
+let swReg=null;
+async function notify(title, body, tag){
+  toast(`🔔 <b>${esc(title)}</b><br>${esc(body)}`, 9000);
+  if(!("Notification" in window) || Notification.permission!=="granted") return;
+  const opt={body, tag, icon:"icon-192.png", badge:"icon-192.png", vibrate:[200,100,200], renotify:true};
+  try{ if(swReg) await swReg.showNotification(title,opt); else new Notification(title,opt); }catch(e){ try{ new Notification(title,opt) }catch(_){} }
+}
+function wanted(){
+  const ps=people(), my=mine();
+  return ACTS.filter(a=>{ const c=whoLikes(a.id,ps).length;
+    return S.mode==="mine" ? my.has(a.id) : S.mode==="group2" ? (my.has(a.id)||c>=2) : c>=1; });
+}
+function checkAlarms(){
+  if(!S.notify) return;
+  const now=NOW(), ps=people();
+  wanted().forEach(a=>{
+    const key=a.id+"@"+(+a.start);
+    const fireAt=+a.start-S.lead*60e3;
+    if(+now>=fireAt && now<a.start && !S.notified[key]){
+      S.notified[key]=1; save();
+      const mins=Math.max(1,Math.round((a.start-now)/60e3));
+      const who=whoLikes(a.id,ps).map(p=>p.me?"du":p.name);
+      notify(`In ${mins} Min: ${a.name}`, `${STAGES[a.stage].n} · ${hm(a.start)} Uhr${who.length?" · ♥ "+who.join(", "):""}`, "pn26-"+a.id);
+    }
+  });
+  renderNowNext();
+}
+$("#notifTog").onclick=async()=>{
+  if(!("Notification" in window)){ toast(isIOS()?"Erst über Teilen → Zum Home-Bildschirm installieren, dann App von dort öffnen.":"Dieser Browser unterstützt keine Benachrichtigungen."); return; }
+  if(S.notify && Notification.permission==="granted"){ S.notify=false; save(); renderAlarm(); return; }
+  let p=Notification.permission; if(p==="default") p=await Notification.requestPermission();
+  S.notify = p==="granted"; save(); renderAlarm();
+  if(S.notify){ toast(`✅ Erinnerung ${S.lead} Min vor jedem Auftritt.`); checkAlarms(); }
+};
+$("#lead").onchange=e=>{ S.lead=+e.target.value; save(); };
+$("#mode").onchange=e=>{ S.mode=e.target.value; save(); };
+$("#testN").onclick=()=>notify("In 15 Min: Eisbrecher","Le Chapiteau · 23:30 Uhr · ♥ Test","pn26-test");
+
+/* ============ KALENDER (.ics) ============ */
+function icsEsc(s){ return String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\n/g,"\\n"); }
+const icsDate = d => d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
+function buildICS(acts){
+  const ps=people(), stamp=icsDate(new Date());
+  const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//PN26 Gruppe//DE","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:Plage Noire 2026"];
+  acts.forEach(a=>{ const who=whoLikes(a.id,ps).map(p=>p.name).join(", ");
+    L.push("BEGIN:VEVENT",`UID:pn26-${a.id}@plage-noire-gruppe`,`DTSTAMP:${stamp}`,`DTSTART:${icsDate(a.start)}`,`DTEND:${icsDate(a.end)}`,
+      `SUMMARY:${icsEsc(a.name+" · "+STAGES[a.stage].n)}`,`LOCATION:${icsEsc(STAGES[a.stage].n+" · Plage Noire")}`,
+      `DESCRIPTION:${icsEsc((who?"♥ "+who:"")+(a.openEnd?"\nEnde offen":""))}`,
+      "BEGIN:VALARM","ACTION:DISPLAY",`TRIGGER:-PT${S.lead}M`,`DESCRIPTION:${icsEsc("Gleich: "+a.name)}`,"END:VALARM","END:VEVENT");
+  });
+  L.push("END:VCALENDAR"); return L.join("\r\n")+"\r\n";
+}
+function downloadICS(acts,fname){
+  if(!acts.length){ toast("Keine passenden Herzen – erst Bands auswählen."); return; }
+  const blob=new Blob([buildICS(acts)],{type:"text/calendar;charset=utf-8"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=fname; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },4000);
+  toast(`📅 ${acts.length} Termine mit Alarm ${S.lead} Min vorher. ${isIOS()?"Datei öffnen → „Alle hinzufügen“.":""}`,6000);
+}
+$("#icsMine").onclick=()=>{ const my=mine(); downloadICS(ACTS.filter(a=>my.has(a.id)),"plage-noire-meine.ics"); };
+$("#icsGroup").onclick=()=>{ const ps=people(); downloadICS(ACTS.filter(a=>whoLikes(a.id,ps).length>=2),"plage-noire-gruppe.ics"); };
+
+/* ============ START ============ */
+S.day = S.day || defaultDay();
+if(params.get("now")) S.day=defaultDay();
+renderAll(); showView(S.view||"prog");
+if(!S.me) askName(true); else handleHash();
+setInterval(checkAlarms,20000); checkAlarms();
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ renderAll(); checkAlarms(); } });
+if("serviceWorker" in navigator && (location.protocol==="https:"||location.hostname==="localhost")){
+  navigator.serviceWorker.register("sw.js").then(r=>{ swReg=r; }).catch(()=>{});
+}
+// Für Tests
+window.__pn = {ACTS,S,makeCode,parseCodes,importCodes,buildICS,people};
+</script>
+</body>
+</html>
