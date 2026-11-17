@@ -146,6 +146,23 @@ nav.tabs button.on{color:var(--mint2)}
 .toast{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 10px);z-index:60;background:#1d2a2f;border:1px solid var(--mint2);border-radius:14px;padding:12px 14px;
   font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.5);transform:translateY(-140%);transition:transform .3s}
 .toast.on{transform:none}
+/* map */
+.map-tools{display:flex;gap:6px;align-items:center;margin:0 0 8px}
+.map-tools .btn.small{min-width:44px}
+.map-wrap{overflow:auto;border-radius:14px;border:1px solid var(--line);background:#0e1619;-webkit-overflow-scrolling:touch;max-height:70vh}
+.map-inner{position:relative;width:100%}
+.map-inner img{display:block;width:100%;height:auto}
+.pin{position:absolute;width:0;height:0;pointer-events:none}
+.pin i{position:absolute;left:-12px;top:-12px;width:24px;height:24px;border-radius:50%;border:3px solid var(--heart);background:rgba(255,77,109,.25);animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,77,109,.7)}70%{box-shadow:0 0 0 16px rgba(255,77,109,0)}100%{box-shadow:0 0 0 0 rgba(255,77,109,0)}}
+.hit{position:absolute;width:64px;height:52px;transform:translate(-50%,-50%)}
+.stagenow{display:flex;gap:10px;align-items:center;padding:10px 6px;border-top:1px solid var(--line);text-align:left;width:100%}
+.stagenow:first-child{border-top:0}
+.stagenow .sb{width:4px;align-self:stretch;border-radius:2px;background:var(--stc)}
+.stagenow .sn{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--stc);font-weight:600}
+.stagenow .an{font-family:var(--cond);font-weight:700;text-transform:uppercase;font-size:17px}
+.stagenow .at{font-size:12px;color:var(--dim)}
+.stagenow.sel{background:rgba(255,77,109,.08);border-radius:10px}
 @media(min-width:700px){main,header.top{max-width:760px;margin:0 auto}}
 </style>
 </head>
@@ -171,6 +188,21 @@ nav.tabs button.on{color:var(--mint2)}
     <h2>Gruppenplan</h2>
     <p class="hint">Überschneidende Auftritte sind zusammengefasst. ★ = die meisten Herzen.</p>
     <div id="plan"></div>
+  </section>
+
+  <section class="view" id="v-map">
+    <h2>Festivalgelände</h2>
+    <div class="map-tools">
+      <button class="btn small ghost" id="zoomOut" aria-label="verkleinern">−</button>
+      <button class="btn small ghost" id="zoomIn" aria-label="vergrößern">+</button>
+      <span class="hint" style="margin:0 0 0 6px">Bühne antippen = markieren</span>
+    </div>
+    <div class="map-wrap" id="mapWrap"><div class="map-inner" id="mapInner">
+      <img src="gelaende.png" alt="Geländeplan mit Bühnen, Essen, Trinken, Toiletten und Ein-/Ausgängen">
+      <div id="pins"></div>
+    </div></div>
+    <h2>Auf den Bühnen</h2>
+    <div class="card" id="stageNow"></div>
   </section>
 
   <section class="view" id="v-group">
@@ -220,6 +252,7 @@ nav.tabs button.on{color:var(--mint2)}
 <nav class="tabs" id="tabs">
   <button data-v="prog" class="on"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Programm</button>
   <button data-v="heat"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Heatmap</button>
+  <button data-v="map"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>Gelände</button>
   <button data-v="group"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.6-3.4 3-5.4 6-5.4s5.4 2 6 5.4"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.2c2.4.2 4 1.9 4.5 4.8"/></svg>Gruppe</button>
   <button data-v="alarm"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/></svg>Erinnern</button>
 </nav>
@@ -238,6 +271,8 @@ const STAGES = {
   cri:{n:"Cri de la Mouette", c:"var(--st-cri)"}
 };
 const STAGE_ORDER = ["chap","salle","rot","cri"];
+const MAP_POS = { chap:[56.5,25], salle:[44,41.5], cri:[12.5,47], rot:[90,58.5] }; // % auf gelaende.png
+let mapZoom=1, mapSel=null;
 const T = (d,hm) => new Date(`2026-11-${d}T${hm}:00+01:00`);
 const RAW = [
  // id, Tag, Bühne, Name, Start, Ende, Typ
@@ -370,7 +405,7 @@ function actCard(a, ps, my, now){
   const st=STAGES[a.stage];
   const live = now>=a.start && now<a.end, past = now>=a.end;
   const clash = on ? ACTS.filter(b=>b.id!==a.id && my.has(b.id) && overlap(a,b)) : [];
-  return `<div class="act ${live?"live":""} ${past?"past":""}" style="--stc:${st.c}">
+  return `<div class="act ${live?"live":""} ${past?"past":""}" data-id="${a.id}" style="--stc:${st.c};cursor:pointer">
     <div class="t"><b style="padding-left:8px">${hm(a.start)}</b><span style="padding-left:8px">${a.openEnd?"open end":hm(a.end)}</span></div>
     <div class="m">
       <div class="stage">${esc(st.n)}${live?'<span class="badge live">läuft</span>':""}${a.type==="lesung"?'<span class="badge les">Lesung</span>':""}</div>
@@ -473,7 +508,34 @@ function renderAlarm(){
                       : "ℹ️ iPhone: Benachrichtigungen funktionieren nur, wenn die App über <b>Teilen → Zum Home-Bildschirm</b> installiert ist (iOS 16.4+).")
     : "ℹ️ Benachrichtigungen kommen, solange die App bzw. der Tab geöffnet ist. Für Erinnerungen bei gesperrtem Handy zusätzlich den Kalender-Export nutzen.";
 }
-function renderAll(){ renderDays(); renderFilters(); renderInstall(); renderNowNext(); renderList(); renderHeat(); renderGroup(); renderAlarm(); }
+function renderMap(){
+  $("#mapInner").style.width=(mapZoom*100)+"%";
+  $("#pins").innerHTML = Object.entries(MAP_POS).map(([k,[x,y]])=>
+      (mapSel===k?`<div class="pin" style="left:${x}%;top:${y}%"><i></i></div>`:"")
+      + `<button class="hit" data-stage="${k}" aria-label="${esc(STAGES[k].n)}" style="left:${x}%;top:${y}%"></button>`).join("");
+  const now=NOW(), ps=people();
+  $("#stageNow").innerHTML = STAGE_ORDER.map(k=>{
+    const acts=ACTS.filter(a=>a.stage===k).sort((a,b)=>a.start-b.start);
+    const live=acts.find(a=>now>=a.start&&now<a.end), next=acts.find(a=>a.start>now);
+    const a=live||next; const c=a?whoLikes(a.id,ps).length:0;
+    const info = !a ? "Programm beendet" : live ? `läuft bis ${hm(a.end)}${c?" · ♥"+c:""}` : `${DAYS.find(d=>d.k===a.day).l} ${hm(a.start)}${c?" · ♥"+c:""}`;
+    return `<button class="stagenow ${mapSel===k?"sel":""}" style="--stc:${STAGES[k].c}" ${a?`data-sd="${a.id}"`:""}>
+      <span class="sb"></span><span style="flex:1;min-width:0"><span class="sn">${esc(STAGES[k].n)}${live?'<span class="badge live">jetzt</span>':a?" · als Nächstes":""}</span>
+      <div class="an">${a?esc(a.name):"–"}</div><div class="at">${info}</div></span></button>`;
+  }).join("");
+}
+function centerMap(x,y){ const w=$("#mapWrap"); w.scrollLeft=w.scrollWidth*x-w.clientWidth/2; w.scrollTop=w.scrollHeight*y-w.clientHeight/2; }
+function showOnMap(stage){
+  mapSel=stage; mapZoom=Math.max(mapZoom,2); showView("map"); renderMap();
+  const [x,y]=MAP_POS[stage]; requestAnimationFrame(()=>centerMap(x/100,y/100));
+}
+function zoomMap(f){
+  const w=$("#mapWrap"), cx=(w.scrollLeft+w.clientWidth/2)/w.scrollWidth, cy=(w.scrollTop+w.clientHeight/2)/w.scrollHeight;
+  mapZoom=Math.min(4,Math.max(1,mapZoom*f)); renderMap(); requestAnimationFrame(()=>centerMap(cx,cy));
+}
+$("#zoomIn").onclick=()=>zoomMap(1.5);
+$("#zoomOut").onclick=()=>zoomMap(1/1.5);
+function renderAll(){ renderMap(); renderDays(); renderFilters(); renderInstall(); renderNowNext(); renderList(); renderHeat(); renderGroup(); renderAlarm(); }
 
 /* ============ SHEETS / DIALOGE ============ */
 function openSheet(html){ $("#sheet").innerHTML=html; $("#modal").classList.add("on"); }
@@ -495,8 +557,10 @@ function showDetail(id){
     <div class="hint">${DAYS.find(d=>d.k===a.day).l} · ${hm(a.start)} – ${a.openEnd?"open end":hm(a.end)}</div>
     <div class="who" style="margin:8px 0">${who.length?who.map(p=>`<span class="dot" style="--c:${p.color}">${esc(initials(p.name))}</span><span style="font-size:14px;margin-right:8px">${esc(p.name)}</span>`).join(""):'<span class="hint">Noch keine Herzen.</span>'}</div>
     <button class="btn ${on?"ghost":""}" id="dH">${on?"♥ Herz entfernen":"♥ Will ich sehen"}</button>
+    ${MAP_POS[a.stage]?`<button class="btn ghost" id="dMap">📍 ${esc(STAGES[a.stage].n)} auf der Karte</button>`:""}
     <button class="btn ghost" onclick="closeSheet()">Schließen</button>`);
   $("#dH").onclick=()=>{ toggleHeart(id); closeSheet(); };
+  if($("#dMap")) $("#dMap").onclick=()=>{ closeSheet(); showOnMap(a.stage); };
 }
 function handleHash(){
   if(!location.hash || location.hash.length<10 || !S.me) return;
@@ -519,6 +583,9 @@ function toggleHeart(id){
   S.hearts=[...s].sort((a,b)=>a-b); S.hTs=Date.now(); save(); renderAll();
 }
 document.addEventListener("click",e=>{
+  const sd=e.target.closest("[data-sd]"); if(sd){ showDetail(+sd.dataset.sd); return; }
+  const stg=e.target.closest("[data-stage]"); if(stg){ mapSel = mapSel===stg.dataset.stage ? null : stg.dataset.stage; renderMap(); return; }
+  const card=e.target.closest(".act[data-id]"); if(card && !e.target.closest("[data-h]")){ showDetail(+card.dataset.id); return; }
   const t=e.target.closest("[data-h],[data-d],[data-f],[data-v],[data-rm],[data-act]"); if(!t) return;
   if(t.dataset.h!==undefined){ toggleHeart(+t.dataset.h); if(navigator.vibrate) navigator.vibrate(10); }
   else if(t.dataset.d!==undefined){ if(t.classList.contains("hm-box")) showDetail(+t.dataset.d); else { S.day=t.dataset.d; save(); renderAll(); } }

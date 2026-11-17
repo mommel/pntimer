@@ -9,6 +9,7 @@ Progressive Web App für das Plage Noire Festival 2026 (20.–21.11.2026) – oh
 - Gruppen-Sync per kurzem Code (z. B. über WhatsApp) – kein Backend
 - Heatmap und Gruppenplan: wer will wann wohin, Überschneidungen mit Mehrheit ★
 - Erinnerungen X Minuten vorher (solange die App offen ist) und Kalender-Export (.ics) mit Alarm
+- Geländeplan mit Bühnen-Markierung und „Was läuft gerade auf welcher Bühne“
 - Offline-fähig dank Service Worker
 
 ## Installation auf dem iPhone
