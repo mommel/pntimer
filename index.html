@@ -151,7 +151,17 @@ nav.tabs button.on{color:var(--mint2)}
 .map-tools .btn.small{min-width:44px}
 .map-wrap{overflow:auto;border-radius:14px;border:1px solid var(--line);background:#0e1619;-webkit-overflow-scrolling:touch;max-height:70vh}
 .map-inner{position:relative;width:100%}
-.map-inner img{display:block;width:100%;height:auto}
+.map-inner svg{display:block;width:100%;height:auto}
+.poi{transition:opacity .2s}
+.dimpoi .poi{opacity:.22}
+.dimpoi .poi.hl{opacity:1}
+.poi.hl rect{stroke:#fff;stroke-width:3}
+.poi.hl{animation:poip 0.9s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+@keyframes poip{from{transform:scale(1)}to{transform:scale(1.3)}}
+.lg2{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 2px}
+.lg2 button{display:flex;align-items:center;gap:5px;padding:3px 9px 3px 3px;border-radius:99px;border:1px solid var(--line);font-size:12px;color:var(--txt)}
+.lg2 button svg{width:20px;height:20px;flex:none}
+.lg2 button.on{border-color:#fff;background:rgba(255,255,255,.08)}
 .pin{position:absolute;width:0;height:0;pointer-events:none}
 .pin i{position:absolute;left:-12px;top:-12px;width:24px;height:24px;border-radius:50%;border:3px solid var(--heart);background:rgba(255,77,109,.25);animation:pulse 1.6s infinite}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,77,109,.7)}70%{box-shadow:0 0 0 16px rgba(255,77,109,0)}100%{box-shadow:0 0 0 0 rgba(255,77,109,0)}}
@@ -198,9 +208,11 @@ nav.tabs button.on{color:var(--mint2)}
       <span class="hint" style="margin:0 0 0 6px">Bühne antippen = markieren</span>
     </div>
     <div class="map-wrap" id="mapWrap"><div class="map-inner" id="mapInner">
-      <img src="gelaende.png" alt="Geländeplan mit Bühnen, Essen, Trinken, Toiletten und Ein-/Ausgängen">
+      <div id="mapSvg"></div>
       <div id="pins"></div>
     </div></div>
+    <div class="lg2" id="poiLegend"></div>
+    <p class="hint">Symbol antippen = alle Standorte hervorheben. Schematische Skizze, nicht maßstabsgetreu.</p>
     <h2>Auf den Bühnen</h2>
     <div class="card" id="stageNow"></div>
   </section>
@@ -257,6 +269,26 @@ nav.tabs button.on{color:var(--mint2)}
   <button data-v="alarm"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/></svg>Erinnern</button>
 </nav>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+ <symbol id="i-drink" viewBox="0 0 24 24"><path d="M6 4h12l-1.6 16H7.6z M6.6 9h10.8" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></symbol>
+ <symbol id="i-food" viewBox="0 0 24 24"><path d="M7 3v6a2 2 0 0 0 4 0V3M9 11v10M9 3v5M17 3c-2.5 2-2.5 7 0 9v9" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></symbol>
+ <symbol id="i-wc" viewBox="0 0 24 24"><text x="12" y="16.5" text-anchor="middle" font-family="Arial,sans-serif" font-weight="800" font-size="11" fill="#fff">WC</text></symbol>
+ <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12" fill="none" stroke="#fff" stroke-width="2"/><circle cx="7" cy="18" r="2.4" fill="#fff"/><circle cx="17" cy="16" r="2.4" fill="#fff"/></symbol>
+ <symbol id="i-vip" viewBox="0 0 24 24"><text x="12" y="16.5" text-anchor="middle" font-family="Arial,sans-serif" font-weight="800" font-size="10" fill="#fff">VIP</text></symbol>
+ <symbol id="i-wheel" viewBox="0 0 24 24"><circle cx="11" cy="4.5" r="1.8" fill="#1b1405"/><path d="M11 7.5v6h5l2.5 5M7.5 11.5a5 5 0 1 0 7.5 6" fill="none" stroke="#1b1405" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+ <symbol id="i-merch" viewBox="0 0 24 24"><path d="M8 4 4 7l2 3 2-1v11h8V9l2 1 2-3-4-3c-1 1.5-2.5 2-4 2S9 5.5 8 4z" fill="#fff"/></symbol>
+ <symbol id="i-auto" viewBox="0 0 24 24"><path d="M5 19l1-4L16 5l3 3L9 18z M14 7l3 3" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></symbol>
+ <symbol id="i-market" viewBox="0 0 24 24"><path d="M3 10l3-6h12l3 6z M5 10v10h14V10 M10 20v-5h4v5" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></symbol>
+ <symbol id="i-whisky" viewBox="0 0 24 24"><path d="M7 3h10c0 5.5-2.2 8.5-5 8.5S7 8.5 7 3z M12 11.5V19 M8 20.5h8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.6 6.5h8.8" stroke="#fff" stroke-width="1.6"/></symbol>
+ <symbol id="i-beauty" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.6" fill="none" stroke="#fff" stroke-width="2"/><circle cx="6" cy="18" r="2.6" fill="none" stroke="#fff" stroke-width="2"/><path d="M8 8l12 10M8 16 20 6" stroke="#fff" stroke-width="2" stroke-linecap="round"/></symbol>
+ <symbol id="i-fashion" viewBox="0 0 24 24"><path d="M10 6a2 2 0 1 1 2 2v2L3 17h18l-9-7" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+ <symbol id="i-bowling" viewBox="0 0 24 24"><path d="M12 3c-1.6 0-2.2 1.6-1.7 3.2.3 1-1 2-1.5 4-.7 3 .5 7 1 10.8h4.4c.5-3.8 1.7-7.8 1-10.8-.5-2-1.8-3-1.5-4C14.2 4.6 13.6 3 12 3z" fill="#fff"/><path d="M10.3 7.5h3.4" stroke="#23a594" stroke-width="1.4"/></symbol>
+ <symbol id="i-arcade" viewBox="0 0 24 24"><rect x="4" y="15" width="16" height="5" rx="1.5" fill="#fff"/><path d="M12 15V9" stroke="#fff" stroke-width="2"/><circle cx="12" cy="6.5" r="2.8" fill="#fff"/></symbol>
+ <symbol id="i-pool" viewBox="0 0 24 24"><path d="M3 15c3 0 3-2 6-2s3 2 6 2 3-2 6-2M3 20c3 0 3-2 6-2s3 2 6 2 3-2 6-2M8 12V4M15 12V4M8 7h7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></symbol>
+ <symbol id="i-sauna" viewBox="0 0 24 24"><path d="M8 3c-2 2 2 3.5 0 6.5M12 3c-2 2 2 3.5 0 6.5M16 3c-2 2 2 3.5 0 6.5M4 15h16M6 15v6M18 15v6M4 19h16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></symbol>
+ <symbol id="i-sew" viewBox="0 0 24 24"><path d="M4 20 18 6" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="19.2" cy="4.8" r="1.8" fill="none" stroke="#fff" stroke-width="1.6"/><path d="M4 20c-2-5 6-7 8-3s6 2 7-1" fill="none" stroke="#fff" stroke-width="1.4"/></symbol>
+ <symbol id="i-exit" viewBox="0 0 24 24"><path d="M4 9h15l-3.5-3.5M20 15H5l3.5 3.5" fill="none" stroke="#0b1114" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</defs></svg>
 <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast"></div>
 
@@ -271,8 +303,72 @@ const STAGES = {
   cri:{n:"Cri de la Mouette", c:"var(--st-cri)"}
 };
 const STAGE_ORDER = ["chap","salle","rot","cri"];
-const MAP_POS = { chap:[56.5,25], salle:[44,41.5], cri:[12.5,47], rot:[90,58.5] }; // % auf gelaende.png
-let mapZoom=1, mapSel=null;
+const MAP_POS = { chap:[60,21.4], salle:[37,42.9], cri:[13.5,46.4], rot:[90,61.4] }; // % der Skizze (1000×700)
+let mapZoom=1, mapSel=null, poiSel=null;
+/* ---------- Eigene Geländeskizze (schematisch, SVG) ---------- */
+const POI_TYPES = {
+  drink:["Trinken","#e8913a"], food:["Essen","#e8913a"], wc:["Toiletten","#3a8fd6"], music:["Warm-up & Aftershow","#23a594"],
+  vip:["VIP-Tribüne","#d93478"], wheel:["Rollstuhlpodest","#f2c94c"], merch:["Merchandise","#23a594"], auto:["Autogramme","#23a594"],
+  market:["Markt","#23a594"], whisky:["Whisky-Tastings","#23a594"], beauty:["Salon de Beauté","#23a594"], fashion:["Fashion Walks","#23a594"],
+  bowling:["Bowling","#23a594"], arcade:["Spielhalle","#23a594"], pool:["Schwimmbad","#23a594"], sauna:["Sauna","#23a594"], sew:["Nähmaschinen","#23a594"]
+};
+const POIS = [
+  ["drink",515,110],["drink",688,104],["drink",500,192],["drink",705,196],["vip",652,170],["wheel",560,172],["wc",560,300],
+  ["drink",320,318],["drink",420,318],["food",380,384],["whisky",440,384],["food",252,312],
+  ["drink",120,345],["music",190,345],["food",250,418],
+  ["food",640,330],["food",735,280],["sew",700,370],["auto",650,372],["merch",760,372],
+  ["market",880,152],["wc",870,440],["drink",930,440],
+  ["bowling",300,466],["arcade",350,466],["wc",400,466],["drink",450,466],["beauty",510,466],["fashion",565,466],
+  ["market",80,470],["food",150,470],["pool",180,620],["sauna",250,620]
+];
+function buildMapSVG(){
+  const lab=(x,y,t,size=22)=>`<text x="${x}" y="${y}" text-anchor="middle" font-family="Iowan Old Style,Palatino,Georgia,serif" font-weight="700" font-size="${size}" fill="#f2f7f6" stroke="#0b1114" stroke-width="6" paint-order="stroke" stroke-linejoin="round">${t}</text>`;
+  const stageBlk=(x,y,w,h,c)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="#0b1114" stroke="${c}" stroke-width="2.5"/><path d="M${x+6} ${y+h/2}h${w-12}" stroke="${c}" stroke-width="2" stroke-dasharray="3 4"/>`;
+  let g=`<svg viewBox="0 0 1000 700" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Schematische Skizze des Festivalgeländes">
+  <defs><pattern id="grain" width="16" height="16" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.1" fill="rgba(196,227,224,.06)"/></pattern>
+  <radialGradient id="glow" cx="50%" cy="30%" r="70%"><stop offset="0" stop-color="#14262a"/><stop offset="1" stop-color="#0c1417"/></radialGradient>
+  <pattern id="stripes" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="12" fill="rgba(255,255,255,.07)"/></pattern></defs>
+  <rect width="1000" height="700" fill="url(#glow)"/><rect width="1000" height="700" fill="url(#grain)"/>`;
+  // Bäume
+  [[60,60,26],[110,95,20],[250,70,24],[300,120,18],[790,40,22],[975,70,20],[975,230,18],[770,240,16],[40,200,18],[350,560,20],[420,600,16],[960,620,24],[520,660,18]]
+    .forEach(([x,y,r])=>g+=`<circle cx="${x}" cy="${y}" r="${r}" fill="#163330" stroke="#21463f" stroke-width="2"/>`);
+  // Wege
+  const paths=["M15 675 L215 545 L250 405 L655 400 L790 325 L995 318","M600 400 L600 262","M250 405 L150 392","M885 318 L885 200","M900 318 L900 368","M230 520 L230 580"];
+  paths.forEach((d,i)=>g+=`<path d="${d}" fill="none" stroke="#21343a" stroke-width="${i?30:46}" stroke-linecap="round" stroke-linejoin="round"/>`);
+  g+=`<path d="${paths[0]}" fill="none" stroke="rgba(196,227,224,.13)" stroke-width="2" stroke-dasharray="10 12"/>`;
+  // neutrale Gebäude (Hotel/Ferienhäuser)
+  [[560,500,250,90],[830,520,150,120],[640,610,170,70],[330,540,120,60]].forEach(([x,y,w,h])=>g+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="#152126" stroke="#22343a" stroke-width="2"/>`);
+  // Le Chapiteau (Zelt)
+  g+=`<ellipse cx="600" cy="150" rx="160" ry="106" fill="rgba(127,224,210,.16)" stroke="#7fe0d2" stroke-width="3"/>`;
+  for(let k=0;k<12;k++){ const a=k/12*Math.PI*2; g+=`<line x1="600" y1="150" x2="${600+Math.cos(a)*158}" y2="${150+Math.sin(a)*104}" stroke="rgba(127,224,210,.18)" stroke-width="2"/>`; }
+  g+=stageBlk(552,52,96,32,"#7fe0d2")+lab(600,30,"Le Chapiteau",26);
+  // Salle de Fête
+  g+=`<rect x="270" y="240" width="230" height="118" rx="10" fill="rgba(183,166,255,.16)" stroke="#b7a6ff" stroke-width="3"/>`+stageBlk(462,258,28,82,"#b7a6ff")+lab(370,228,"Salle de Fête");
+  // Cri de la Mouette
+  g+=`<rect x="40" y="275" width="190" height="105" rx="10" fill="rgba(240,138,93,.16)" stroke="#f08a5d" stroke-width="3"/>`+stageBlk(50,292,28,70,"#f08a5d")+lab(135,262,"Cri de la Mouette");
+  // La Rotonde (rund)
+  g+=`<circle cx="900" cy="430" r="64" fill="rgba(255,207,122,.16)" stroke="#ffcf7a" stroke-width="3"/>`+stageBlk(872,378,56,22,"#ffcf7a")+lab(900,355,"La Rotonde");
+  // Le Bazar
+  g+=`<rect x="800" y="112" width="165" height="80" rx="10" fill="rgba(154,167,165,.16)" stroke="#9aa7a5" stroke-width="3"/>`+lab(882,100,"Le Bazar",20);
+  // Petit Marché Médiéval
+  g+=`<rect x="30" y="440" width="170" height="70" rx="10" fill="rgba(192,138,90,.2)" stroke="#c08a5a" stroke-width="3"/><rect x="30" y="440" width="170" height="70" rx="10" fill="url(#stripes)"/>`+lab(115,432,"Petit Marché Médiéval",17);
+  // Galerie / Passage
+  g+=`<rect x="270" y="440" width="330" height="54" rx="10" fill="rgba(95,127,134,.2)" stroke="#5f7f86" stroke-width="2.5"/>`+lab(435,516,"Passage",15);
+  // Schwimmbad & Sauna
+  g+=`<rect x="140" y="590" width="150" height="62" rx="10" fill="rgba(74,163,199,.18)" stroke="#4aa3c7" stroke-width="2.5"/>`+lab(215,676,"Bad &amp; Sauna",15);
+  // Ein-/Ausgänge
+  const exit=(x,y,t,ly)=>`<g><rect x="${x-24}" y="${y-18}" width="48" height="36" rx="10" fill="#e8f1ef"/><use href="#i-exit" x="${x-14}" y="${y-14}" width="28" height="28"/>${lab(x>900?x-12:x,y+ly,t,14)}</g>`;
+  g+=exit(955,318,"Ein-/Ausgang",-28)+exit(45,640,"Ein-/Ausgang",40);
+  // Symbole
+  POIS.forEach(([t,x,y])=>{ const [l,c]=POI_TYPES[t];
+    g+=`<g class="poi" data-t="${t}"><title>${l}</title><rect x="${x-15}" y="${y-15}" width="30" height="30" rx="7" fill="${c}"/><use href="#i-${t}" x="${x-11}" y="${y-11}" width="22" height="22"/></g>`; });
+  return g+`</svg>`;
+}
+function renderPoiLegend(){
+  $("#poiLegend").innerHTML = Object.entries(POI_TYPES).map(([k,[l,c]])=>`<button data-poi="${k}" class="${poiSel===k?"on":""}"><svg viewBox="0 0 30 30"><rect width="30" height="30" rx="7" fill="${c}"/><use href="#i-${k}" x="4" y="4" width="22" height="22"/></svg>${esc(l)}</button>`).join("");
+  const svg=$("#mapSvg"); svg.classList.toggle("dimpoi",!!poiSel);
+  svg.querySelectorAll(".poi").forEach(el=>el.classList.toggle("hl",el.dataset.t===poiSel));
+}
 const T = (d,hm) => new Date(`2026-11-${d}T${hm}:00+01:00`);
 const RAW = [
  // id, Tag, Bühne, Name, Start, Ende, Typ
@@ -509,6 +605,8 @@ function renderAlarm(){
     : "ℹ️ Benachrichtigungen kommen, solange die App bzw. der Tab geöffnet ist. Für Erinnerungen bei gesperrtem Handy zusätzlich den Kalender-Export nutzen.";
 }
 function renderMap(){
+  if(!$("#mapSvg").firstChild){ $("#mapSvg").innerHTML=buildMapSVG(); }
+  renderPoiLegend();
   $("#mapInner").style.width=(mapZoom*100)+"%";
   $("#pins").innerHTML = Object.entries(MAP_POS).map(([k,[x,y]])=>
       (mapSel===k?`<div class="pin" style="left:${x}%;top:${y}%"><i></i></div>`:"")
@@ -583,6 +681,7 @@ function toggleHeart(id){
   S.hearts=[...s].sort((a,b)=>a-b); S.hTs=Date.now(); save(); renderAll();
 }
 document.addEventListener("click",e=>{
+  const pl=e.target.closest("[data-poi]"); if(pl){ poiSel = poiSel===pl.dataset.poi ? null : pl.dataset.poi; renderPoiLegend(); return; }
   const sd=e.target.closest("[data-sd]"); if(sd){ showDetail(+sd.dataset.sd); return; }
   const stg=e.target.closest("[data-stage]"); if(stg){ mapSel = mapSel===stg.dataset.stage ? null : stg.dataset.stage; renderMap(); return; }
   const card=e.target.closest(".act[data-id]"); if(card && !e.target.closest("[data-h]")){ showDetail(+card.dataset.id); return; }
